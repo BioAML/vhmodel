@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from gradio_client import Client
 
-# Hugging Face Space endpoint
 client = Client("https://rajaatif786-vhbert.hf.space")
+
 
 app = FastAPI(title="Proxy API for VirTransformer")
 
@@ -15,7 +15,7 @@ def predict(input: DNAInput):
     try:
         result = client.predict(
             input.seq,
-            api_name="/predict_dna"  # this must match your Hugging Face `api_name`
+            api_name="//predict_dna"  # this must match your Hugging Face `api_name`
         )
         return {"result": result}
     except Exception as e:
