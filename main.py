@@ -10,8 +10,8 @@ app = FastAPI(title="Proxy API for VirTransformer")
 class DNAInput(BaseModel):
     seq: str
 
-@app.post("/predict_dna")
-def predict_dna(input: DNAInput):
+@app.post("/predict")
+def predict(input: DNAInput):
     try:
         result = client.predict(
             input.seq,
