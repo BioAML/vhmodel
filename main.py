@@ -54,7 +54,7 @@ def predict_accession(input: DNAInput):
         # Call your Hugging Face model API
         result = client.predict(
             dna_sequence,
-            api_name="/predict_dna"  # make sure your space exposes this endpoint
+            api_name="//predict_dna"  # make sure your space exposes this endpoint
         )
         return {"accession": accession_id, "sequence": dna_sequence[:100] + "...", "result": result}
 
