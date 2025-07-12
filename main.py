@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from gradio_client import Client
 from fastapi.middleware.cors import CORSMiddleware
+from Bio import Entrez, SeqIO
 
 client = Client("https://rajaatif786-vhbert.hf.space")
 
