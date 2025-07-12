@@ -17,8 +17,19 @@ app.add_middleware(
 class DNAInput(BaseModel):
     seq: str
 
-@app.post("/predict")
-def predict(input: DNAInput):
+@app.post("/predict_sequence")
+def predict_sequence(input: DNAInput):
+    try:
+        result = client.predict(
+            input.seq,
+            api_name="//predict_dna"  # this must match your Hugging Face `api_name`
+        )
+        return {"result": result}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/predict_accession")
+def predict_accession(input: DNAInput):
     try:
         result = client.predict(
             input.seq,
