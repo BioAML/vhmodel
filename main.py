@@ -28,13 +28,34 @@ def predict_sequence(input: DNAInput):
     except Exception as e:
         return {"error": str(e)}
 
+Entrez.email = "rajaatif78600000@gmail.com"  # Required by NCBI
+
+# Input model
+class DNAInput(BaseModel):
+    seq: str  # Will be an accession ID in this case
+
+# Helper: Fetch DNA sequence from NCBI
+def fetch_sequence_from_accession(accession_id):
+    try:
+        with Entrez.efetch(db="nucleotide", id=accession_id, rettype="fasta", retmode="text") as handle:
+            record = SeqIO.read(handle, "fasta")
+            return str(record.seq)
+    except Exception as e:
+        raise RuntimeError(f"Error fetching sequence: {e}")
+
+# Endpoint: Accession to DNA → Prediction
 @app.post("/predict_accession")
 def predict_accession(input: DNAInput):
     try:
+        accession_id = input.seq.strip()
+        dna_sequence = fetch_sequence_from_accession(accession_id)
+
+        # Call your Hugging Face model API
         result = client.predict(
-            input.seq,
-            api_name="//predict_dna"  # this must match your Hugging Face `api_name`
+            dna_sequence,
+            api_name="/predict_dna"  # make sure your space exposes this endpoint
         )
-        return {"result": result}
+        return {"accession": accession_id, "sequence": dna_sequence[:100] + "...", "result": result}
+
     except Exception as e:
         return {"error": str(e)}
