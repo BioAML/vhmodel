@@ -56,6 +56,9 @@ def predict_accession(input: DNAInput):
             dna_sequence,
             api_name="//predict_dna"  # make sure your space exposes this endpoint
         )
+        if (data.result.chunks && data.result.annotations_gff) {
+          renderGenome(data.result.chunks, data.result.genome_length, data.result.annotations_gff);
+        }
         return {"accession": accession_id, "sequence": dna_sequence[:100] + "...", "result": result}
 
     except Exception as e:
