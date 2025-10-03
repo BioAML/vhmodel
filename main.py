@@ -86,7 +86,7 @@ def predict_accession(input: DNAInput):
         )
         
         result['annotations_gff'] = gff_data
-        return {"accession": accession_id, "sequence": dna_sequence[:100] + "...", "result": result}
+        return {"accession": accession_id, "sequence": dna_sequence + "...", "result": result}
 
     except Exception as e:
         return {"error": str(e)}
