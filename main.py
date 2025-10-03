@@ -84,6 +84,7 @@ def predict_accession(input: DNAInput):
             dna_sequence,
             api_name="//predict_dna"  # make sure your space exposes this endpoint
         )
+        
         result['annotations_gff'] = gff_data
         return {"accession": accession_id, "sequence": dna_sequence[:100] + "...", "result": result}
 
