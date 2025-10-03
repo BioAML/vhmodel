@@ -44,18 +44,47 @@ def fetch_sequence_from_accession(accession_id):
     except Exception as e:
         raise RuntimeError(f"Error fetching sequence: {e}")
 
+
+# Helper: Fetch GFF3-like data from GenBank
+def fetch_gff3_from_accession(accession_id):
+    gff_data = "##gff-version 3\n"
+    try:
+        with Entrez.efetch(db="nucleotide", id=accession_id, rettype="gb", retmode="text") as handle:
+            record = SeqIO.read(handle, "genbank")
+            seqid = record.id
+
+            for idx, feature in enumerate(record.features):
+                if feature.type in ["gene", "CDS", "mRNA"]:
+                    start = int(feature.location.start) + 1  # GFF is 1-based
+                    end = int(feature.location.end)
+                    strand = "+" if feature.location.strand == 1 else "-" if feature.location.strand == -1 else "."
+                    score = "."  # You can use "." or a feature.qualifier value
+                    attributes = f"ID={feature.type}{idx+1}"
+
+                    # Optionally include gene name
+                    if "gene" in feature.qualifiers:
+                        attributes += f";Name={feature.qualifiers['gene'][0]}"
+                    elif "product" in feature.qualifiers:
+                        attributes += f";Name={feature.qualifiers['product'][0]}"
+
+                    gff_data += f"{seqid}\tNCBI\t{feature.type}\t{start}\t{end}\t{score}\t{strand}\t.\t{attributes}\n"
+        return gff_data
+    except Exception as e:
+        raise RuntimeError(f"Error fetching annotations: {e}")
 # Endpoint: Accession to DNA → Prediction
 @app.post("/predict_accession")
 def predict_accession(input: DNAInput):
     try:
         accession_id = input.seq.strip()
         dna_sequence = fetch_sequence_from_accession(accession_id)
+        gff_data = fetch_gff3_from_accession(accession_id)
 
         # Call your Hugging Face model API
         result = client.predict(
             dna_sequence,
             api_name="//predict_dna"  # make sure your space exposes this endpoint
         )
+        result['annotations_gff'] = gff_data
         return {"accession": accession_id, "sequence": dna_sequence[:100] + "...", "result": result}
 
     except Exception as e:
